@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Time Tracker</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Time Tracker <span id="plusminus"></span></h1>
+      <p id="today-score"></p>
+    </header>
+
+    <section id="site-control">
+      <div id="hostname-display">—</div>
+      <div id="label-buttons">
+        <button class="btn-pos" data-label="positive">Positive</button>
+        <button class="btn-none" data-label="none">None</button>
+        <button class="btn-neg" data-label="negative">Negative</button>
+      </div>
+    </section>
+
+    <section id="calendar-section">
+      <div id="calendar-nav">
+        <button id="prev-month">&#8249;</button>
+        <span id="month-label"></span>
+        <button id="next-month">&#8250;</button>
+      </div>
+      <div id="calendar-grid"></div>
+      <div id="calendar-legend">
+        <span class="legend-neg">▇ More negative</span>
+        <span class="legend-pos">▇ More positive</span>
+      </div>
+    </section>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
