@@ -9,26 +9,125 @@ body {
   background: #0d1117;
   color: #e6edf3;
   width: 340px;
-  min-height: 420px;
-  padding: 16px;
+  padding: 12px 16px 16px;
 }
 
-header h1 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-
-#plusminus {
-  font-size: 13px;
-  font-weight: 400;
-  color: #8b949e;
-}
-
-#today-score {
-  font-size: 12px;
-  color: #8b949e;
+/* ── Tabs ── */
+#tab-bar {
+  display: flex;
+  gap: 4px;
   margin-bottom: 14px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 5px 0;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background: #21262d;
+  color: #8b949e;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tab-btn.active {
+  background: #161b22;
+  color: #e6edf3;
+  border-color: #58a6ff;
+}
+
+.tab-panel { display: block; }
+.tab-panel.hidden { display: none; }
+
+/* ── Net circle ── */
+#net-circle-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+#net-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 1.5px solid #30363d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  transition: border-color 0.3s;
+}
+
+#net-circle.pos { border-color: rgba(63, 185, 80, 0.4); }
+#net-circle.neg { border-color: rgba(248, 81, 73, 0.4); }
+
+#net-sign {
+  font-size: 13px;
+  color: #8b949e;
+  line-height: 1;
+}
+
+#net-time {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+#net-label {
+  font-size: 10px;
+  color: #8b949e;
+  margin-top: 2px;
+}
+
+/* ── Bar graph ── */
+#bar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bar-tag {
+  font-size: 10px;
+  width: 50px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.pos-tag { color: rgba(63, 185, 80, 0.7); }
+.neg-tag { color: rgba(248, 81, 73, 0.7); }
+
+.bar-track {
+  flex: 1;
+  height: 8px;
+  background: #21262d;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+.pos-fill { background: rgba(63, 185, 80, 0.35); }
+.neg-fill { background: rgba(248, 81, 73, 0.35); }
+
+.bar-time {
+  font-size: 10px;
+  color: #8b949e;
+  width: 52px;
+  flex-shrink: 0;
 }
 
 /* ── Site control ── */
@@ -37,7 +136,6 @@ header h1 {
   border: 1px solid #30363d;
   border-radius: 8px;
   padding: 10px 12px;
-  margin-bottom: 16px;
 }
 
 #hostname-display {

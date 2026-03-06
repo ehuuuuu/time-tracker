@@ -77,8 +77,13 @@ async function commitSession() {
 
 function applyTime(log, dateKey, ms, label) {
   if (label === "none") return;
-  const delta = label === "positive" ? ms : -ms;
-  log[dateKey] = (log[dateKey] || 0) + delta;
+  if (label === "positive") {
+    log[dateKey] = (log[dateKey] || 0) + ms;
+    log[dateKey + "_pos"] = (log[dateKey + "_pos"] || 0) + ms;
+  } else {
+    log[dateKey] = (log[dateKey] || 0) - ms;
+    log[dateKey + "_neg"] = (log[dateKey + "_neg"] || 0) + ms;
+  }
 }
 
 async function endSession() {

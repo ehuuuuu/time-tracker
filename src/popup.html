@@ -8,32 +8,64 @@
 </head>
 <body>
   <div id="app">
-    <header>
-      <h1>Time Tracker <span id="plusminus"></span></h1>
-      <p id="today-score"></p>
-    </header>
+    <!-- Tab bar -->
+    <div id="tab-bar">
+      <button class="tab-btn active" data-tab="main">Today</button>
+      <button class="tab-btn" data-tab="calendar">Calendar</button>
+    </div>
 
-    <section id="site-control">
-      <div id="hostname-display">—</div>
-      <div id="label-buttons">
-        <button class="btn-pos" data-label="positive">Positive</button>
-        <button class="btn-none" data-label="none">None</button>
-        <button class="btn-neg" data-label="negative">Negative</button>
+    <!-- Main tab -->
+    <div id="tab-main" class="tab-panel">
+      <div id="net-circle-wrap">
+        <div id="net-circle">
+          <span id="net-sign"></span>
+          <span id="net-time"></span>
+          <span id="net-label">net today</span>
+        </div>
       </div>
-    </section>
 
-    <section id="calendar-section">
-      <div id="calendar-nav">
-        <button id="prev-month">&#8249;</button>
-        <span id="month-label"></span>
-        <button id="next-month">&#8250;</button>
+      <div id="bar-section">
+        <div class="bar-row">
+          <span class="bar-tag pos-tag">positive</span>
+          <div class="bar-track">
+            <div class="bar-fill pos-fill" id="pos-bar"></div>
+          </div>
+          <span class="bar-time" id="pos-time">0s</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-tag neg-tag">negative</span>
+          <div class="bar-track">
+            <div class="bar-fill neg-fill" id="neg-bar"></div>
+          </div>
+          <span class="bar-time" id="neg-time">0s</span>
+        </div>
       </div>
-      <div id="calendar-grid"></div>
-      <div id="calendar-legend">
-        <span class="legend-neg">▇ More negative</span>
-        <span class="legend-pos">▇ More positive</span>
-      </div>
-    </section>
+
+      <section id="site-control">
+        <div id="hostname-display">—</div>
+        <div id="label-buttons">
+          <button class="btn-pos" data-label="positive">Positive</button>
+          <button class="btn-none" data-label="none">None</button>
+          <button class="btn-neg" data-label="negative">Negative</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Calendar tab -->
+    <div id="tab-calendar" class="tab-panel hidden">
+      <section id="calendar-section">
+        <div id="calendar-nav">
+          <button id="prev-month">&#8249;</button>
+          <span id="month-label"></span>
+          <button id="next-month">&#8250;</button>
+        </div>
+        <div id="calendar-grid"></div>
+        <div id="calendar-legend">
+          <span class="legend-neg">▇ More negative</span>
+          <span class="legend-pos">▇ More positive</span>
+        </div>
+      </section>
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>

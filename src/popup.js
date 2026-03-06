@@ -45,11 +45,7 @@ function renderHeader() {
   const today = new Date().toISOString().slice(0, 10);
   const ms = dailyLog[today] || 0;
   const sign = ms >= 0 ? "+" : "-";
-  const abs = Math.abs(ms);
-  const mins = Math.floor(abs / 60000);
-  const hrs = Math.floor(mins / 60);
-  const m = mins % 60;
-  const timeStr = hrs > 0 ? `${hrs}h ${m}m` : `${m}m`;
+  const timeStr = formatMs(Math.abs(ms));
 
   document.getElementById("plusminus").textContent = "+/- Tracker";
   document.getElementById("today-score").textContent =
@@ -137,11 +133,7 @@ function renderCalendar() {
     // Tooltip
     if (ms !== 0) {
       const sign = ms > 0 ? "+" : "-";
-      const mins = Math.floor(Math.abs(ms) / 60000);
-      const hrs = Math.floor(mins / 60);
-      const m = mins % 60;
-      const timeStr = hrs > 0 ? `${hrs}h ${m}m` : `${m}m`;
-      el.title = `${key}: ${sign}${timeStr}`;
+      el.title = `${key}: ${sign}${formatMs(Math.abs(ms))}`;
     } else {
       el.title = `${key}: no data`;
     }
@@ -172,6 +164,16 @@ function negativeColor(t) {
 }
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
+
+function formatMs(ms) {
+  const totalSecs = Math.floor(ms / 1000);
+  const hrs = Math.floor(totalSecs / 3600);
+  const mins = Math.floor((totalSecs % 3600) / 60);
+  const secs = totalSecs % 60;
+  if (hrs > 0) return `${hrs}h ${mins}m ${secs}s`;
+  if (mins > 0) return `${mins}m ${secs}s`;
+  return `${secs}s`;
+}
 
 function sendMsg(msg) {
   return new Promise(resolve => chrome.runtime.sendMessage(msg, resolve));
