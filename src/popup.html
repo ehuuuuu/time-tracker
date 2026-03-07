@@ -8,11 +8,22 @@
 </head>
 <body>
   <div id="app">
-    <!-- Tab bar -->
-    <div id="tab-bar">
-      <button class="tab-btn active" data-tab="main">Today</button>
-      <button class="tab-btn" data-tab="labels">Labels</button>
-      <button class="tab-btn" data-tab="calendar">Calendar</button>
+
+    <!-- Header -->
+    <div id="header">
+      <button id="menu-btn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <span id="current-tab-label">Today</span>
+
+      <!-- Dropdown -->
+      <div id="dropdown" class="hidden">
+        <button class="dropdown-item active" data-tab="main">Today</button>
+        <button class="dropdown-item" data-tab="labels">Labels</button>
+        <button class="dropdown-item" data-tab="calendar">Calendar</button>
+      </div>
     </div>
 
     <!-- Main tab -->
@@ -70,11 +81,12 @@
         </div>
         <div id="calendar-grid"></div>
         <div id="calendar-legend">
-          <span class="legend-neg">▇ More negative</span>
-          <span class="legend-pos">▇ More positive</span>
+          <span class="legend-neg">&#9607; More negative</span>
+          <span class="legend-pos">&#9607; More positive</span>
         </div>
       </section>
     </div>
+
   </div>
   <script src="popup.js"></script>
 </body>

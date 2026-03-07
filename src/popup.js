@@ -26,13 +26,26 @@ async function init() {
   renderMainTab();
   renderCalendar();
 
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+  const menuBtn = document.getElementById("menu-btn");
+  const dropdown = document.getElementById("dropdown");
+
+  menuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle("hidden");
+  });
+
+  document.addEventListener("click", () => dropdown.classList.add("hidden"));
+
+  document.querySelectorAll(".dropdown-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const tab = item.dataset.tab;
+      document.querySelectorAll(".dropdown-item").forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
       document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
-      document.getElementById(`tab-${btn.dataset.tab}`).classList.remove("hidden");
-      if (btn.dataset.tab === "labels") renderLabelsTab();
+      document.getElementById(`tab-${tab}`).classList.remove("hidden");
+      document.getElementById("current-tab-label").textContent = item.textContent;
+      dropdown.classList.add("hidden");
+      if (tab === "labels") renderLabelsTab();
     });
   });
 
