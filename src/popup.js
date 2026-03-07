@@ -32,6 +32,7 @@ async function init() {
       btn.classList.add("active");
       document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
       document.getElementById(`tab-${btn.dataset.tab}`).classList.remove("hidden");
+      if (btn.dataset.tab === "labels") renderLabelsTab();
     });
   });
 
@@ -55,20 +56,17 @@ function renderMainTab() {
   const pos = dailyLog[today + "_pos"] || 0;
   const neg = dailyLog[today + "_neg"] || 0;
 
-  // Net circle
   const circle = document.getElementById("net-circle");
   circle.className = net > 0 ? "pos" : net < 0 ? "neg" : "";
   document.getElementById("net-sign").textContent = net >= 0 ? "+" : "−";
   document.getElementById("net-time").textContent = formatMs(Math.abs(net));
 
-  // Bars
   const maxMs = Math.max(pos, neg, 1);
   document.getElementById("pos-bar").style.width = `${(pos / maxMs) * 100}%`;
   document.getElementById("neg-bar").style.width = `${(neg / maxMs) * 100}%`;
   document.getElementById("pos-time").textContent = formatMs(pos);
   document.getElementById("neg-time").textContent = formatMs(neg);
 
-  // Site control
   document.getElementById("hostname-display").textContent =
     currentHostname || "No trackable page";
 
@@ -87,6 +85,49 @@ function renderMainTab() {
       await sendMsg({ type: "SET_LABEL", hostname: currentHostname, label: currentLabel });
       renderMainTab();
     };
+  });
+}
+
+// ── Labels tab ────────────────────────────────────────────────────────────────
+
+async function renderLabelsTab() {
+  const { labels } = await sendMsg({ type: "GET_LABELS" });
+  const list = document.getElementById("labels-list");
+  const empty = document.getElementById("labels-empty");
+  list.innerHTML = "";
+
+  const entries = Object.entries(labels || {});
+  if (entries.length === 0) {
+    empty.classList.remove("hidden");
+    return;
+  }
+  empty.classList.add("hidden");
+
+  entries.sort((a, b) => a[0].localeCompare(b[0]));
+  entries.forEach(([hostname, label]) => {
+    const row = document.createElement("div");
+    row.className = "label-row";
+
+    const badge = document.createElement("span");
+    badge.className = `label-badge ${label === "positive" ? "badge-pos" : "badge-neg"}`;
+    badge.textContent = label === "positive" ? "+" : "−";
+
+    const name = document.createElement("span");
+    name.className = "label-hostname";
+    name.textContent = hostname;
+
+    const del = document.createElement("button");
+    del.className = "label-delete";
+    del.textContent = "✕";
+    del.onclick = async () => {
+      await sendMsg({ type: "REMOVE_LABEL", hostname });
+      renderLabelsTab();
+    };
+
+    row.appendChild(badge);
+    row.appendChild(name);
+    row.appendChild(del);
+    list.appendChild(row);
   });
 }
 

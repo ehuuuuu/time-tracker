@@ -1,6 +1,5 @@
 // background.js — MV3 service worker
 
-const TICK_INTERVAL_MS = 5000;
 const IDLE_THRESHOLD_S = 60;
 
 let session = null; // { hostname, startMs, label }
@@ -13,7 +12,10 @@ function todayKey() {
 
 function getHostname(url) {
   try {
-    return new URL(url).hostname.replace(/^www\./, "");
+    const { hostname, protocol } = new URL(url);
+    // Ignore internal/system pages
+    if (["chrome:", "chrome-extension:", "about:", "edge:", "data:"].includes(protocol)) return null;
+    return hostname.replace(/^www\./, "");
   } catch {
     return null;
   }
@@ -33,16 +35,15 @@ async function getDailyLog() {
 
 async function startSession(url) {
   await commitSession();
-  const labels = await getLabels();
   const hostname = getHostname(url);
   if (!hostname) return;
+  const labels = await getLabels();
   const label = labels[hostname] || "none";
   session = { hostname, startMs: Date.now(), label };
   await chrome.storage.local.set({ activeSession: session });
 }
 
 async function commitSession() {
-  // Resolve the session to commit — prefer in-memory, fall back to storage
   let s = session;
   if (!s) {
     const { activeSession } = await chrome.storage.local.get("activeSession");
@@ -52,7 +53,7 @@ async function commitSession() {
   session = null;
   await chrome.storage.local.set({ activeSession: null });
 
-  if (!s || !s.label || !s.startMs) return; // guard against corrupt data
+  if (!s || !s.label || !s.startMs) return;
 
   const elapsedMs = Date.now() - s.startMs;
   if (elapsedMs < 1000) return;
@@ -115,7 +116,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (state === "idle" || state === "locked") {
     await commitSession();
   } else {
-    // Re-checkpoint: flush and restart
     const { activeSession } = await chrome.storage.local.get("activeSession");
     const current = session || activeSession;
     if (current?.hostname && current?.label) {
@@ -159,6 +159,21 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 
   if (msg.type === "GET_DAILY_LOG") {
     getDailyLog().then(log => sendResponse({ log }));
+    return true;
+  }
+
+  if (msg.type === "GET_LABELS") {
+    getLabels().then(labels => sendResponse({ labels }));
+    return true;
+  }
+
+  if (msg.type === "REMOVE_LABEL") {
+    (async () => {
+      const labels = await getLabels();
+      delete labels[msg.hostname];
+      await chrome.storage.local.set({ labels });
+      sendResponse({ ok: true });
+    })();
     return true;
   }
 });

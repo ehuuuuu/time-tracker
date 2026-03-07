@@ -181,6 +181,85 @@ body {
   color: #f85149;
 }
 
+/* ── Labels tab ── */
+#labels-list-wrap {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 80px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+#labels-empty {
+  font-size: 12px;
+  color: #8b949e;
+  text-align: center;
+  padding: 20px 0;
+}
+
+#labels-empty.hidden { display: none; }
+
+.label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border-bottom: 1px solid #21262d;
+}
+
+.label-row:last-child { border-bottom: none; }
+
+.label-badge {
+  font-size: 11px;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.badge-pos {
+  background: rgba(63, 185, 80, 0.15);
+  color: #3fb950;
+  border: 1px solid rgba(63, 185, 80, 0.3);
+}
+
+.badge-neg {
+  background: rgba(248, 81, 73, 0.15);
+  color: #f85149;
+  border: 1px solid rgba(248, 81, 73, 0.3);
+}
+
+.label-hostname {
+  flex: 1;
+  font-size: 12px;
+  color: #e6edf3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.label-delete {
+  background: none;
+  border: none;
+  color: #8b949e;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.label-delete:hover {
+  background: #4a1b1b;
+  color: #f85149;
+}
+
 /* ── Calendar ── */
 #calendar-section {
   background: #161b22;
