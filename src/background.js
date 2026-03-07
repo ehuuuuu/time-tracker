@@ -1,14 +1,14 @@
 // background.js — MV3 service worker
 
-const TICK_INTERVAL_MS = 5000; // checkpoint every 5s
-const IDLE_THRESHOLD_S = 60;   // consider idle after 60s
+const TICK_INTERVAL_MS = 5000;
+const IDLE_THRESHOLD_S = 60;
 
 let session = null; // { hostname, startMs, label }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function todayKey() {
-  return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+  return new Date().toISOString().slice(0, 10);
 }
 
 function getHostname(url) {
@@ -32,7 +32,7 @@ async function getDailyLog() {
 // ── Session management ────────────────────────────────────────────────────────
 
 async function startSession(url) {
-  await commitSession(); // flush any existing session first
+  await commitSession();
   const labels = await getLabels();
   const hostname = getHostname(url);
   if (!hostname) return;
@@ -42,37 +42,37 @@ async function startSession(url) {
 }
 
 async function commitSession() {
-  if (!session) {
-    // try to recover from storage (service worker may have been killed)
+  // Resolve the session to commit — prefer in-memory, fall back to storage
+  let s = session;
+  if (!s) {
     const { activeSession } = await chrome.storage.local.get("activeSession");
-    if (activeSession) session = activeSession;
-    else return;
+    if (!activeSession) return;
+    s = activeSession;
   }
+  session = null;
+  await chrome.storage.local.set({ activeSession: null });
 
-  const elapsedMs = Date.now() - session.startMs;
-  if (elapsedMs < 1000) { session = null; return; } // ignore sub-second blips
+  if (!s || !s.label || !s.startMs) return; // guard against corrupt data
 
-  // Handle cross-day splits
-  const startDate = new Date(session.startMs).toISOString().slice(0, 10);
+  const elapsedMs = Date.now() - s.startMs;
+  if (elapsedMs < 1000) return;
+
+  const startDate = new Date(s.startMs).toISOString().slice(0, 10);
   const endDate = todayKey();
-
   const dailyLog = await getDailyLog();
 
   if (startDate === endDate) {
-    applyTime(dailyLog, startDate, elapsedMs, session.label);
+    applyTime(dailyLog, startDate, elapsedMs, s.label);
   } else {
-    // Split at midnight boundaries
     const midnightAfterStart = new Date(startDate);
     midnightAfterStart.setDate(midnightAfterStart.getDate() + 1);
-    const msOnStartDay = midnightAfterStart - session.startMs;
-    applyTime(dailyLog, startDate, msOnStartDay, session.label);
-    // For simplicity, attribute the rest to today (multi-day gaps are rare)
+    const msOnStartDay = midnightAfterStart - s.startMs;
+    applyTime(dailyLog, startDate, msOnStartDay, s.label);
     const msOnEndDay = Date.now() - midnightAfterStart;
-    if (msOnEndDay > 0) applyTime(dailyLog, endDate, msOnEndDay, session.label);
+    if (msOnEndDay > 0) applyTime(dailyLog, endDate, msOnEndDay, s.label);
   }
 
-  await chrome.storage.local.set({ dailyLog, activeSession: null });
-  session = null;
+  await chrome.storage.local.set({ dailyLog });
 }
 
 function applyTime(log, dateKey, ms, label) {
@@ -84,10 +84,6 @@ function applyTime(log, dateKey, ms, label) {
     log[dateKey] = (log[dateKey] || 0) - ms;
     log[dateKey + "_neg"] = (log[dateKey + "_neg"] || 0) + ms;
   }
-}
-
-async function endSession() {
-  await commitSession();
 }
 
 // ── Event listeners ───────────────────────────────────────────────────────────
@@ -105,32 +101,31 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
 chrome.windows.onFocusChanged.addListener(async (windowId) => {
   if (windowId === chrome.windows.WINDOW_ID_NONE) {
-    await endSession();
+    await commitSession();
   } else {
     const [tab] = await chrome.tabs.query({ active: true, windowId });
     if (tab?.url) await startSession(tab.url);
   }
 });
 
-// Periodic checkpoint so we don't lose data if the worker is killed
-chrome.alarms.create("tick", { periodInMinutes: 1 / 12 }); // every 5s equiv
+chrome.alarms.create("tick", { periodInMinutes: 1 / 12 });
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== "tick") return;
   const state = await chrome.idle.queryState(IDLE_THRESHOLD_S);
   if (state === "idle" || state === "locked") {
-    await endSession();
+    await commitSession();
   } else {
-    // Re-checkpoint: commit and immediately restart the same session
-    if (session) {
-      const { hostname, label } = session;
+    // Re-checkpoint: flush and restart
+    const { activeSession } = await chrome.storage.local.get("activeSession");
+    const current = session || activeSession;
+    if (current?.hostname && current?.label) {
       await commitSession();
-      session = { hostname, startMs: Date.now(), label };
+      session = { hostname: current.hostname, startMs: Date.now(), label: current.label };
       await chrome.storage.local.set({ activeSession: session });
     }
   }
 });
 
-// Recover on service worker startup
 chrome.runtime.onStartup.addListener(async () => {
   await commitSession();
 });
@@ -143,7 +138,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       const labels = await getLabels();
       sendResponse({ hostname, label: labels[hostname] || "none" });
     });
-    return true; // async
+    return true;
   }
 
   if (msg.type === "SET_LABEL") {
@@ -155,7 +150,6 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         labels[msg.hostname] = msg.label;
       }
       await chrome.storage.local.set({ labels });
-      // restart session with new label
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab?.url) await startSession(tab.url);
       sendResponse({ ok: true });

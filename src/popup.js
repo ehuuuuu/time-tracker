@@ -23,9 +23,17 @@ async function init() {
   currentHostname = hostRes.hostname;
   currentLabel = hostRes.label || "none";
 
-  renderHeader();
-  renderSiteControl();
+  renderMainTab();
   renderCalendar();
+
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.remove("hidden");
+    });
+  });
 
   document.getElementById("prev-month").addEventListener("click", () => {
     currentMonth--;
@@ -39,27 +47,32 @@ async function init() {
   });
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
+// ── Main tab ──────────────────────────────────────────────────────────────────
 
-function renderHeader() {
+function renderMainTab() {
   const today = new Date().toISOString().slice(0, 10);
-  const ms = dailyLog[today] || 0;
-  const sign = ms >= 0 ? "+" : "-";
-  const timeStr = formatMs(Math.abs(ms));
+  const net = dailyLog[today] || 0;
+  const pos = dailyLog[today + "_pos"] || 0;
+  const neg = dailyLog[today + "_neg"] || 0;
 
-  document.getElementById("plusminus").textContent = "+/- Tracker";
-  document.getElementById("today-score").textContent =
-    `Today: ${sign}${timeStr} net time`;
-}
+  // Net circle
+  const circle = document.getElementById("net-circle");
+  circle.className = net > 0 ? "pos" : net < 0 ? "neg" : "";
+  document.getElementById("net-sign").textContent = net >= 0 ? "+" : "−";
+  document.getElementById("net-time").textContent = formatMs(Math.abs(net));
 
-// ── Site control ──────────────────────────────────────────────────────────────
+  // Bars
+  const maxMs = Math.max(pos, neg, 1);
+  document.getElementById("pos-bar").style.width = `${(pos / maxMs) * 100}%`;
+  document.getElementById("neg-bar").style.width = `${(neg / maxMs) * 100}%`;
+  document.getElementById("pos-time").textContent = formatMs(pos);
+  document.getElementById("neg-time").textContent = formatMs(neg);
 
-function renderSiteControl() {
+  // Site control
   document.getElementById("hostname-display").textContent =
     currentHostname || "No trackable page";
 
-  const btns = document.querySelectorAll("#label-buttons button");
-  btns.forEach(btn => {
+  document.querySelectorAll("#label-buttons button").forEach(btn => {
     btn.classList.remove("active-pos", "active-none", "active-neg");
     if (btn.dataset.label === currentLabel) {
       btn.classList.add(
@@ -68,12 +81,12 @@ function renderSiteControl() {
         : "active-none"
       );
     }
-    btn.addEventListener("click", async () => {
+    btn.onclick = async () => {
       if (!currentHostname) return;
       currentLabel = btn.dataset.label;
       await sendMsg({ type: "SET_LABEL", hostname: currentHostname, label: currentLabel });
-      renderSiteControl();
-    });
+      renderMainTab();
+    };
   });
 }
 
@@ -88,7 +101,6 @@ function renderCalendar() {
   const grid = document.getElementById("calendar-grid");
   grid.innerHTML = "";
 
-  // Day labels
   DAYS.forEach(d => {
     const el = document.createElement("div");
     el.className = "day-label";
@@ -100,7 +112,6 @@ function renderCalendar() {
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const today = new Date().toISOString().slice(0, 10);
 
-  // Compute max absolute value for color scaling (per displayed month)
   let maxAbs = 1;
   for (let d = 1; d <= daysInMonth; d++) {
     const key = dateKey(currentYear, currentMonth, d);
@@ -108,14 +119,12 @@ function renderCalendar() {
     if (Math.abs(val) > maxAbs) maxAbs = Math.abs(val);
   }
 
-  // Empty cells before first day
   for (let i = 0; i < firstDay; i++) {
     const el = document.createElement("div");
     el.className = "day-cell empty";
     grid.appendChild(el);
   }
 
-  // Day cells
   for (let d = 1; d <= daysInMonth; d++) {
     const key = dateKey(currentYear, currentMonth, d);
     const ms = dailyLog[key] || 0;
@@ -124,20 +133,11 @@ function renderCalendar() {
     if (key === today) el.classList.add("today");
 
     const intensity = Math.min(Math.abs(ms) / maxAbs, 1);
-    if (ms > 0) {
-      el.style.backgroundColor = positiveColor(intensity);
-    } else if (ms < 0) {
-      el.style.backgroundColor = negativeColor(intensity);
-    }
+    if (ms > 0) el.style.backgroundColor = positiveColor(intensity);
+    else if (ms < 0) el.style.backgroundColor = negativeColor(intensity);
 
-    // Tooltip
-    if (ms !== 0) {
-      const sign = ms > 0 ? "+" : "-";
-      el.title = `${key}: ${sign}${formatMs(Math.abs(ms))}`;
-    } else {
-      el.title = `${key}: no data`;
-    }
-
+    const sign = ms > 0 ? "+" : "-";
+    el.title = ms !== 0 ? `${key}: ${sign}${formatMs(Math.abs(ms))}` : `${key}: no data`;
     grid.appendChild(el);
   }
 }
@@ -146,9 +146,7 @@ function dateKey(y, m, d) {
   return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
-// GitHub-style green: low opacity at low intensity, rich green at high
 function positiveColor(t) {
-  // from #0e4429 (dim) to #3fb950 (bright)
   const r = Math.round(14 + t * (63 - 14));
   const g = Math.round(68 + t * (185 - 68));
   const b = Math.round(41 + t * (80 - 41));
@@ -156,7 +154,6 @@ function positiveColor(t) {
 }
 
 function negativeColor(t) {
-  // from #4a1b1b (dim) to #f85149 (bright)
   const r = Math.round(74 + t * (248 - 74));
   const g = Math.round(27 + t * (81 - 27));
   const b = Math.round(27 + t * (73 - 27));
