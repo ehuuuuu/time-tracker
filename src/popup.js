@@ -34,6 +34,8 @@ function applyTheme(theme) {
   document.getElementById("theme-icon").textContent = theme === "dark" ? "☀" : "☾";
 }
 
+
+
 async function init() {
   const now = new Date();
   currentYear = now.getFullYear();
@@ -50,12 +52,6 @@ async function init() {
 
   renderMainTab();
   renderCalendar();
-
-  document.getElementById("theme-toggle").addEventListener("click", () => {
-    const next = document.body.classList.contains("dark") ? "light" : "dark";
-    applyTheme(next);
-    localStorage.setItem("theme", next);
-  });
 
   const menuBtn = document.getElementById("menu-btn");
   const dropdown = document.getElementById("dropdown");
@@ -254,17 +250,11 @@ function renderCalendar() {
 }
 
 function positiveColor(t) {
-  const r = Math.round(14 + t * (63 - 14));
-  const g = Math.round(68 + t * (185 - 68));
-  const b = Math.round(41 + t * (80 - 41));
-  return `rgb(${r},${g},${b})`;
+  return `rgba(63, 185, 80, ${0.15 + t * 0.85})`;
 }
 
 function negativeColor(t) {
-  const r = Math.round(74 + t * (248 - 74));
-  const g = Math.round(27 + t * (81 - 27));
-  const b = Math.round(27 + t * (73 - 27));
-  return `rgb(${r},${g},${b})`;
+  return `rgba(248, 81, 73, ${0.15 + t * 0.85})`;
 }
 
 // ── Day detail ────────────────────────────────────────────────────────────────
