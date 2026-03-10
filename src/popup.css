@@ -440,7 +440,16 @@ body.light {
   position: relative;
 }
 
-.day-cell[data-key] { cursor: pointer; }
+.day-num {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-size: 6px;
+  color: var(--text2);
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0.7;
+}
 
 .day-cell.today {
   outline: 1px solid var(--accent);

@@ -34,7 +34,7 @@ function applyTheme(theme) {
   document.getElementById("theme-icon").textContent = theme === "dark" ? "☀" : "☾";
 }
 
-
+// ── Init ──────────────────────────────────────────────────────────────────────
 
 async function init() {
   const now = new Date();
@@ -76,13 +76,13 @@ async function init() {
   });
 
   // Theme toggle
-  const savedTheme = localStorage.getItem("theme") || "dark";
-  applyTheme(savedTheme);
+  const { theme: savedTheme } = await chrome.storage.local.get("theme");
+  applyTheme(savedTheme || "dark");
 
-  document.getElementById("theme-toggle").addEventListener("click", () => {
+  document.getElementById("theme-toggle").addEventListener("click", async () => {
     const next = document.body.classList.contains("dark") ? "light" : "dark";
     applyTheme(next);
-    localStorage.setItem("theme", next);
+    await chrome.storage.local.set({ theme: next });
   });
 
   document.getElementById("prev-month").addEventListener("click", () => {
@@ -95,6 +95,7 @@ async function init() {
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     renderCalendar();
   });
+
   document.getElementById("day-back").addEventListener("click", () => {
     showPanel("calendar");
     document.getElementById("current-tab-label").textContent = "Calendar";
@@ -233,6 +234,11 @@ function renderCalendar() {
     const el = document.createElement("div");
     el.className = "day-cell";
     if (key === today) el.classList.add("today");
+
+    const dayNum = document.createElement("span");
+    dayNum.className = "day-num";
+    dayNum.textContent = d;
+    el.appendChild(dayNum);
 
     const intensity = Math.min(Math.abs(ms) / maxAbs, 1);
     if (ms > 0) el.style.backgroundColor = positiveColor(intensity);
