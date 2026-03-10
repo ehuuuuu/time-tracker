@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Time Tracker +/-",
+  "name": "+/-",
   "version": "1.0.0",
   "description": "Track time on pages with a positive/negative rating system.",
   "permissions": [
