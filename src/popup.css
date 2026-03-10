@@ -566,8 +566,8 @@ body.light {
   transition: width 0.4s ease;
 }
 
-.chart-fill-pos { background: var(--pos); }
-.chart-fill-neg { background: var(--neg); }
+.chart-fill-pos { background: rgba(63, 185, 80, 0.85); }
+.chart-fill-neg { background: rgba(248, 81, 73, 0.85); }
 
 .chart-time {
   font-size: 10px;

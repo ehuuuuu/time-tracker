@@ -95,6 +95,13 @@ async function init() {
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     renderCalendar();
   });
+  document.getElementById("day-back").addEventListener("click", () => {
+    showPanel("calendar");
+    document.getElementById("current-tab-label").textContent = "Calendar";
+    document.querySelectorAll(".dropdown-item").forEach(i => {
+      i.classList.toggle("active", i.dataset.tab === "calendar");
+    });
+  });
 }
 
 function showPanel(name) {
