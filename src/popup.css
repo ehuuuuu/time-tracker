@@ -2,24 +2,56 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: inherit;
 }
 
+/* ── Theme variables ── */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Menlo", monospace;
   background: transparent;
-  color: #e6edf3;
+  color: var(--text);
   width: 340px;
   margin: 0;
   padding: 0;
 }
 
-#label-buttons button, .dropdown-item {
-  font-family: "Avenir Next", sans-serif;
+body.dark {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #21262d;
+  --bg4: #2d333b;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --accent: #58a6ff;
+  --pos: #3fb950;
+  --neg: #f85149;
+  --pos-bg: #1a4731;
+  --pos-border: #3fb950;
+  --neg-bg: #4a1b1b;
+  --neg-border: #f85149;
+}
+
+body.light {
+  --bg: #ffffff;
+  --bg2: #f6f8fa;
+  --bg3: #eaeef2;
+  --bg4: #d0d7de;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text2: #656d76;
+  --accent: #0969da;
+  --pos: #1a7f37;
+  --neg: #cf222e;
+  --pos-bg: #dafbe1;
+  --pos-border: #1a7f37;
+  --neg-bg: #ffebe9;
+  --neg-border: #cf222e;
 }
 
 #app {
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px 16px 16px;
   overflow: hidden;
@@ -50,23 +82,45 @@ body {
   flex-shrink: 0;
 }
 
-#menu-btn:hover { background: #21262d; }
+#menu-btn:hover { background: var(--bg3); }
 
 #menu-btn span {
   display: block;
   width: 100%;
   height: 1.5px;
-  background: #8b949e;
+  background: var(--text2);
   border-radius: 2px;
   transition: background 0.15s;
 }
 
-#menu-btn:hover span { background: #e6edf3; }
+#menu-btn:hover span { background: var(--text); }
 
 #current-tab-label {
   font-size: 13px;
   font-weight: 600;
-  color: #e6edf3;
+  color: var(--text);
+  flex: 1;
+}
+
+#theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 13px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+#theme-toggle:hover {
+  background: var(--bg3);
+  color: var(--text);
 }
 
 /* ── Dropdown ── */
@@ -74,8 +128,8 @@ body {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--bg2);
+  border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
   z-index: 100;
@@ -93,19 +147,19 @@ body {
   font-size: 12px;
   background: none;
   border: none;
-  color: #8b949e;
+  color: var(--text2);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .dropdown-item:hover {
-  background: #21262d;
-  color: #e6edf3;
+  background: var(--bg3);
+  color: var(--text);
 }
 
 .dropdown-item.active {
-  color: #58a6ff;
-  background: #1c2333;
+  color: var(--accent);
+  background: var(--bg3);
 }
 
 /* ── Panels ── */
@@ -123,7 +177,7 @@ body {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 1.5px solid #30363d;
+  border: 1.5px solid var(--border);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -137,7 +191,7 @@ body {
 
 #net-sign {
   font-size: 13px;
-  color: #8b949e;
+  color: var(--text2);
   line-height: 1;
 }
 
@@ -145,11 +199,12 @@ body {
   font-size: 18px;
   font-weight: 700;
   line-height: 1.2;
+  color: var(--text);
 }
 
 #net-label {
   font-size: 10px;
-  color: #8b949e;
+  color: var(--text2);
   margin-top: 2px;
 }
 
@@ -174,13 +229,13 @@ body {
   flex-shrink: 0;
 }
 
-.pos-tag { color: rgba(63, 185, 80, 0.7); }
-.neg-tag { color: rgba(248, 81, 73, 0.7); }
+.pos-tag { color: var(--pos); }
+.neg-tag { color: var(--neg); }
 
 .bar-track {
   flex: 1;
   height: 8px;
-  background: #21262d;
+  background: var(--bg3);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -197,22 +252,22 @@ body {
 
 .bar-time {
   font-size: 10px;
-  color: #8b949e;
+  color: var(--text2);
   width: 52px;
   flex-shrink: 0;
 }
 
 /* ── Site control ── */
 #site-control {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--bg2);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 12px;
 }
 
 #hostname-display {
   font-size: 13px;
-  color: #58a6ff;
+  color: var(--accent);
   margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
@@ -229,34 +284,34 @@ body {
   padding: 5px 0;
   font-size: 11px;
   border-radius: 6px;
-  border: 1px solid #30363d;
-  background: #21262d;
-  color: #e6edf3;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
 
-#label-buttons button:hover { background: #2d333b; }
+#label-buttons button:hover { background: var(--bg4); }
 
 #label-buttons button.active-pos {
-  background: #1a4731;
-  border-color: #3fb950;
-  color: #3fb950;
+  background: var(--pos-bg);
+  border-color: var(--pos-border);
+  color: var(--pos);
 }
 #label-buttons button.active-none {
-  background: #2d333b;
-  border-color: #8b949e;
+  background: var(--bg4);
+  border-color: var(--text2);
 }
 #label-buttons button.active-neg {
-  background: #4a1b1b;
-  border-color: #f85149;
-  color: #f85149;
+  background: var(--neg-bg);
+  border-color: var(--neg-border);
+  color: var(--neg);
 }
 
 /* ── Labels tab ── */
 #labels-list-wrap {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--bg2);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px;
   min-height: 80px;
@@ -266,7 +321,7 @@ body {
 
 #labels-empty {
   font-size: 12px;
-  color: #8b949e;
+  color: var(--text2);
   text-align: center;
   padding: 20px 0;
 }
@@ -278,7 +333,7 @@ body {
   align-items: center;
   gap: 8px;
   padding: 6px 4px;
-  border-bottom: 1px solid #21262d;
+  border-bottom: 1px solid var(--bg3);
 }
 
 .label-row:last-child { border-bottom: none; }
@@ -297,20 +352,20 @@ body {
 
 .badge-pos {
   background: rgba(63, 185, 80, 0.15);
-  color: #3fb950;
+  color: var(--pos);
   border: 1px solid rgba(63, 185, 80, 0.3);
 }
 
 .badge-neg {
   background: rgba(248, 81, 73, 0.15);
-  color: #f85149;
+  color: var(--neg);
   border: 1px solid rgba(248, 81, 73, 0.3);
 }
 
 .label-hostname {
   flex: 1;
   font-size: 12px;
-  color: #e6edf3;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -319,7 +374,7 @@ body {
 .label-delete {
   background: none;
   border: none;
-  color: #8b949e;
+  color: var(--text2);
   font-size: 11px;
   cursor: pointer;
   padding: 2px 4px;
@@ -328,14 +383,14 @@ body {
 }
 
 .label-delete:hover {
-  background: #4a1b1b;
-  color: #f85149;
+  background: var(--neg-bg);
+  color: var(--neg);
 }
 
 /* ── Calendar ── */
 #calendar-section {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--bg2);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 12px;
 }
@@ -350,17 +405,18 @@ body {
 #calendar-nav button {
   background: none;
   border: none;
-  color: #8b949e;
+  color: var(--text2);
   font-size: 18px;
   cursor: pointer;
   padding: 0 4px;
   line-height: 1;
 }
-#calendar-nav button:hover { color: #e6edf3; }
+#calendar-nav button:hover { color: var(--text); }
 
 #month-label {
   font-size: 13px;
   font-weight: 600;
+  color: var(--text);
 }
 
 #calendar-grid {
@@ -371,7 +427,7 @@ body {
 
 .day-label {
   font-size: 9px;
-  color: #8b949e;
+  color: var(--text2);
   text-align: center;
   padding-bottom: 3px;
 }
@@ -379,7 +435,7 @@ body {
 .day-cell {
   aspect-ratio: 1;
   border-radius: 2px;
-  background: #21262d;
+  background: var(--bg3);
   cursor: default;
   position: relative;
 }
@@ -387,7 +443,7 @@ body {
 .day-cell[data-key] { cursor: pointer; }
 
 .day-cell.today {
-  outline: 1px solid #58a6ff;
+  outline: 1px solid var(--accent);
   outline-offset: 1px;
 }
 
@@ -397,8 +453,8 @@ body {
 .day-tooltip {
   display: none;
   position: fixed;
-  background: #1c2333;
-  border: 1px solid #30363d;
+  background: var(--bg2);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 5px 8px;
   font-size: 11px;
@@ -413,13 +469,13 @@ body {
 .day-cell[data-key]:hover .day-tooltip { display: flex; }
 
 .tip-date {
-  color: #8b949e;
+  color: var(--text2);
   font-size: 10px;
 }
 
 .tip-net { font-weight: 600; }
-.tip-pos { color: #3fb950; }
-.tip-neg { color: #f85149; }
+.tip-pos { color: var(--pos); }
+.tip-neg { color: var(--neg); }
 
 #calendar-legend {
   display: flex;
@@ -428,8 +484,8 @@ body {
   font-size: 10px;
 }
 
-.legend-neg { color: #f85149; }
-.legend-pos { color: #3fb950; }
+.legend-neg { color: var(--neg); }
+.legend-pos { color: var(--pos); }
 
 /* ── Day detail ── */
 #day-header {
@@ -442,18 +498,19 @@ body {
 #day-back {
   background: none;
   border: none;
-  color: #8b949e;
+  color: var(--text2);
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
   padding: 0;
 }
 
-#day-back:hover { color: #e6edf3; }
+#day-back:hover { color: var(--text); }
 
 #day-title {
   font-size: 13px;
   font-weight: 600;
+  color: var(--text);
 }
 
 #day-net {
@@ -463,8 +520,8 @@ body {
   margin-bottom: 16px;
 }
 
-.day-net-pos { color: #3fb950; }
-.day-net-neg { color: #f85149; }
+.day-net-pos { color: var(--pos); }
+.day-net-neg { color: var(--neg); }
 
 #day-chart {
   display: flex;
@@ -474,7 +531,7 @@ body {
 
 .chart-empty {
   font-size: 12px;
-  color: #8b949e;
+  color: var(--text2);
   text-align: center;
   padding: 20px 0;
 }
@@ -488,7 +545,7 @@ body {
 
 .chart-label {
   font-size: 11px;
-  color: #8b949e;
+  color: var(--text2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -498,7 +555,7 @@ body {
 .chart-track {
   width: 100%;
   height: 16px;
-  background: #2d333b;
+  background: var(--bg3);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -509,13 +566,13 @@ body {
   transition: width 0.4s ease;
 }
 
-.chart-fill-pos { background: #3fb950; }
-.chart-fill-neg { background: #f85149; }
+.chart-fill-pos { background: var(--pos); }
+.chart-fill-neg { background: var(--neg); }
 
 .chart-time {
   font-size: 10px;
   font-weight: 600;
 }
 
-.chart-time-pos { color: rgba(63, 185, 80, 0.8); }
-.chart-time-neg { color: rgba(248, 81, 73, 0.8); }
+.chart-time-pos { color: var(--pos); }
+.chart-time-neg { color: var(--neg); }

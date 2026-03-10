@@ -28,7 +28,11 @@ function sendMsg(msg) {
   return new Promise(resolve => chrome.runtime.sendMessage(msg, resolve));
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+function applyTheme(theme) {
+  document.body.classList.remove("dark", "light");
+  document.body.classList.add(theme);
+  document.getElementById("theme-icon").textContent = theme === "dark" ? "☀" : "☾";
+}
 
 async function init() {
   const now = new Date();
@@ -47,6 +51,12 @@ async function init() {
   renderMainTab();
   renderCalendar();
 
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    const next = document.body.classList.contains("dark") ? "light" : "dark";
+    applyTheme(next);
+    localStorage.setItem("theme", next);
+  });
+
   const menuBtn = document.getElementById("menu-btn");
   const dropdown = document.getElementById("dropdown");
 
@@ -54,8 +64,6 @@ async function init() {
     e.stopPropagation();
     dropdown.classList.toggle("hidden");
   });
-  console.log("menuBtn", menuBtn, "dropdown", dropdown);
-
 
   document.addEventListener("click", () => dropdown.classList.add("hidden"));
 
@@ -71,6 +79,16 @@ async function init() {
     });
   });
 
+  // Theme toggle
+  const savedTheme = localStorage.getItem("theme") || "dark";
+  applyTheme(savedTheme);
+
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    const next = document.body.classList.contains("dark") ? "light" : "dark";
+    applyTheme(next);
+    localStorage.setItem("theme", next);
+  });
+
   document.getElementById("prev-month").addEventListener("click", () => {
     currentMonth--;
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
@@ -80,14 +98,6 @@ async function init() {
     currentMonth++;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     renderCalendar();
-  });
-
-  document.getElementById("day-back").addEventListener("click", () => {
-    showPanel("calendar");
-    document.getElementById("current-tab-label").textContent = "Calendar";
-    document.querySelectorAll(".dropdown-item").forEach(i => {
-      i.classList.toggle("active", i.dataset.tab === "calendar");
-    });
   });
 }
 
