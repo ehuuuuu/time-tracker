@@ -439,7 +439,8 @@ body {
   background: none;
   border: none;
   color: #8b949e;
-  font-size: 13px;
+  font-size: 20px;
+  line-height: 1;
   cursor: pointer;
   padding: 0;
 }
