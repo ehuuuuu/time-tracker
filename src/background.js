@@ -7,13 +7,13 @@ let session = null; // { hostname, startMs, label }
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function getHostname(url) {
   try {
     const { hostname, protocol } = new URL(url);
-    // Ignore internal/system pages
     if (["chrome:", "chrome-extension:", "about:", "edge:", "data:"].includes(protocol)) return null;
     return hostname.replace(/^www\./, "");
   } catch {
@@ -58,25 +58,27 @@ async function commitSession() {
   const elapsedMs = Date.now() - s.startMs;
   if (elapsedMs < 1000) return;
 
-  const startDate = new Date(s.startMs).toISOString().slice(0, 10);
+  const startD = new Date(s.startMs);
+  const startDate = `${startD.getFullYear()}-${String(startD.getMonth() + 1).padStart(2, "0")}-${String(startD.getDate()).padStart(2, "0")}`;
   const endDate = todayKey();
   const dailyLog = await getDailyLog();
 
   if (startDate === endDate) {
-    applyTime(dailyLog, startDate, elapsedMs, s.label);
+    applyTime(dailyLog, startDate, elapsedMs, s.label, s.hostname);
   } else {
-    const midnightAfterStart = new Date(startDate);
+    const midnightAfterStart = new Date(startD);
     midnightAfterStart.setDate(midnightAfterStart.getDate() + 1);
+    midnightAfterStart.setHours(0, 0, 0, 0);
     const msOnStartDay = midnightAfterStart - s.startMs;
-    applyTime(dailyLog, startDate, msOnStartDay, s.label);
+    applyTime(dailyLog, startDate, msOnStartDay, s.label, s.hostname);
     const msOnEndDay = Date.now() - midnightAfterStart;
-    if (msOnEndDay > 0) applyTime(dailyLog, endDate, msOnEndDay, s.label);
+    if (msOnEndDay > 0) applyTime(dailyLog, endDate, msOnEndDay, s.label, s.hostname);
   }
 
   await chrome.storage.local.set({ dailyLog });
 }
 
-function applyTime(log, dateKey, ms, label) {
+function applyTime(log, dateKey, ms, label, hostname) {
   if (label === "none") return;
   if (label === "positive") {
     log[dateKey] = (log[dateKey] || 0) + ms;
@@ -85,6 +87,11 @@ function applyTime(log, dateKey, ms, label) {
     log[dateKey] = (log[dateKey] || 0) - ms;
     log[dateKey + "_neg"] = (log[dateKey + "_neg"] || 0) + ms;
   }
+  // Per-site breakdown
+  const sitesKey = dateKey + "_sites";
+  if (!log[sitesKey]) log[sitesKey] = {};
+  const delta = label === "positive" ? ms : -ms;
+  log[sitesKey][hostname] = (log[sitesKey][hostname] || 0) + delta;
 }
 
 // ── Event listeners ───────────────────────────────────────────────────────────
@@ -130,7 +137,6 @@ chrome.runtime.onStartup.addListener(async () => {
   await commitSession();
 });
 
-// Message bridge for popup
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === "GET_CURRENT_HOST") {
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
